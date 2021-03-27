@@ -1,5 +1,5 @@
 # HANSsolver.jl
-HANS Solver is a toolbox for finding stationary equilibria of heterogeneous agents with discrete choice models. **HANS** stands for **H**eterogeneous **A**gents with **N**oncontinous **S**trategy.
+HANS Solver is a toolbox for finding stationary equilibria of heterogeneous agents with discrete choice models. **HANS** stands for **H**eterogeneous **A**gents with **N**oncontinous **S**trategy. Was made on Julia 1.4.1
 
 The use is straightforward:
 
@@ -17,6 +17,8 @@ In [the folder "example"](https://github.com/neoabs/HANSsolver.jl/tree/master/ex
 # TODO List
 
 Since it is the first public release of the toolbox, many things are not yet perfectly polished while some functionalities are missing. If someone wants to help → let me know.
+
+* **Integrate with Julia 1.6**. Should work out of the box but you never know.
 
 * **Allign naming convention with the one in PDF document**. This does not affects functionality of HANS Solver, however naming convention in PDF is more Julia-like.
 * **Add GPU computing support**. In the past I tried using `ArrayFire.jl` but it turned out to lack some functionalities I needed. I tried `AMDGPU.jl` but could not install ROCm on my distro. I recently switched to xUbuntu so if I find some spare time I might try that.
