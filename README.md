@@ -23,6 +23,7 @@ Since it is the first public release of the toolbox, many things are not yet per
 * **Dynamic griding**. Genrally something that would remove grid points that are not used by agents and move them to area where `Ψ` is positive. 
 * **TODO from the example**. I realized that there is a need for user to define an custom object after _Prices_ are updated and _Additional Prices_ are calculated.
 * **Upgrade example**. Implementing economically sound model + adding Model description in PDF would do.
+* **Implement Druedahl [2020] and Druedahl and Jørgensen [2017] algorithms**. This method is not compatible with multi-threading in it's raw form BUT with few tricks it might work.
 
 # Thanks
 
