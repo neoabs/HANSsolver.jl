@@ -3,7 +3,7 @@ function Ψ_search(mdl::Model)
     tm = mdl.DR
     mdl.Ψ = zeros( Float64, size(mdl.VF) )
     # Probabilities = ones(t_V,2)
-    mdl.Λ = vec( (mdl.λ^200)[1,:] )
+    mdl.Λ = vec( (mdl.λ^200)[initial_point,:] )
     
     not_converging = true
     check = 0

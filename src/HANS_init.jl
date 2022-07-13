@@ -5,7 +5,7 @@ global Ψ_maxiter = 400
 global Ψ_punish_degree = 1.0
 global DR_punish_degree = 0.5
 global GridDef_maxiter = 10^5
-
+global initial_point = 1
 ### Custom structs
 
 struct GridDef

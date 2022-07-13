@@ -1,12 +1,15 @@
-function hans_solver(mdl::Union{ModelInit,Model}, lower::Vector{Float64}=[.975,.975], upper::Vector{Float64}=[1.075,1.075]; method_cube::String="CPU") # , lower = zeros(length(mdl.Prices)), upper = ones(length(mdl.Prices)))
+function hans_solver(mdl::Union{ModelInit,Model}, lower::Vector{Float64}=[.975,.975], upper::Vector{Float64}=[1.075,1.075]; method_cube::String="CPU",optim_method::String="Simplex") # , lower = zeros(length(mdl.Prices)), upper = ones(length(mdl.Prices)))
     
     # initialise model
     
     mdl = init_model(mdl)
-    results = Optim.optimize(prices -> objective_function(prices, mdl, method_cube), mdl.Prices, Optim.NelderMead())
-    # results = optimize( prices -> objective_function(prices, mdl, method_cube), lower, upper, mdl.Prices , Fminbox( NelderMead() ) )
-    # results = optimize( prices -> objective_function(prices, mdl, method_cube), mdl.Prices , ParticleSwarm(lower, upper, 12 ) ) 
-    
+    if optim_method=="Simplex"
+        results = Optim.optimize(prices -> objective_function(prices, mdl, method_cube), mdl.Prices, Optim.NelderMead())
+    else if optim_method =="PSO"# results = optimize( prices -> objective_function(prices, mdl, method_cube), lower, upper, mdl.Prices , Fminbox( NelderMead() ) )
+        results = optimize( prices -> objective_function(prices, mdl, method_cube), mdl.Prices , ParticleSwarm(lower, upper, 64 ) ) 
+    else
+        error("Select proper optimisation method")
+    end
     if (results.minimum < 10^(-8))
         
         printstyled("\n\n\nModel Solution found with precision 10^-8 with respect to value function.\nRunning last iteration to generate contents of Model\n\n)", color=28)
