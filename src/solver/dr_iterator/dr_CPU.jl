@@ -93,8 +93,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         @Threads.threads for status in mdl.GridDef.Grids[end]
         
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
-            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[:,status][.!array_bool]
-            mdl.DR[:,status][.!array_bool] .= 0*array_bool
+            mdl.VF[:,status][.!array_bool] = mdl.VFalter[:,status][.!array_bool]
+            mdl.DR[:,status][.!array_bool] = zeros(Int,size(mdl.DR[:,status][.!array_bool]))
 
         end
 
@@ -175,8 +175,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             # array_bool .*= vf[:,status] .!= -Inf
             # array_bool .*= .!isnan.(vf[:,status])
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
-            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[:,status][.!array_bool]
-            mdl.DR[:,status][.!array_bool] .= 0*array_bool
+            mdl.VF[:,status][.!array_bool] = mdl.VFalter[:,status][.!array_bool]
+            mdl.DR[:,status][.!array_bool] = zeros(Int,size(mdl.DR[:,status][.!array_bool]))
 
         end
         
