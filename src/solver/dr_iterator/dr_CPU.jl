@@ -179,7 +179,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             # array_bool .*= value[:,status] .!= -Inf
             # array_bool .*= .!isnan.(value[:,status])
             array_bool = value[:,status] .≥ υ[status]
-            value[:,status][.!array_bool] .= υ[status]
+            value[:,status][.!array_bool] .= υ[status][.!array_bool]
             decission[:,status][.!array_bool] .= 0
             
         end
@@ -192,7 +192,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             # array_bool .*= vf[:,status] .!= -Inf
             # array_bool .*= .!isnan.(vf[:,status])
             array_bool = value[:,status] .≥ υ[:,status]
-            value[:,status][.!array_bool] .= υ[:,status]
+            value[:,status][.!array_bool] .= υ[:,status][.!array_bool]
             decission[:,status][.!array_bool] .= 0
 
         end
