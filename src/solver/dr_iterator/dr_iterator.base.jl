@@ -25,7 +25,7 @@ function iterate_decission_rules(mdl::Model)
     while (no_convergeance)
         
         #there must be a more efficient way to do the below:
-        old_vf, old_dr, old_vfalter = copy(mdl.VF), copy(mdl.DR), copy(VFalter)
+        old_vf, old_dr, old_vfalter = copy(mdl.VF), copy(mdl.DR), copy(mdl.VFalter)
         
         #find optimal decission rules/ vf matrix given old DR / old VF
         mdl = dr_CPU(mdl)
