@@ -1,7 +1,7 @@
 name = "HANSsolver"
 uuid = "92eecce2-284f-4689-a0de-570b1415cbd7"
 authors = [" neoabs "]
-version = "0.9.9"
+version = "0.9.9a"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
