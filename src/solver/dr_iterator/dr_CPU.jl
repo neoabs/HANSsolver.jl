@@ -60,6 +60,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
     end
 
     #Update VF alter (view) for updated VF → needs to be here because of (1)
+    mdl.VFalter = zeros(size(mdl.VF))
     υ[:] = mdl.HAconstraint_Alt(mdl)
 
     #initialize parameters for VFalter search
@@ -68,6 +69,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
     condition = true
 
     #Search for VFalter for new Model.VF
+    # 
     while condition
         
         test_υ = copy(υ) # (1)
@@ -121,6 +123,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
     end
 
     #TODO: MAS - multi alternate state
+    mdl.VFalter = zeros(size(mdl.VF))
     υ[:,:] = mdl.HAconstraint_Alt(mdl)
 
     iter_fin = 0
@@ -186,6 +189,7 @@ function precomputeVF(mdl::Model)
     end
 
     # Compute VFalter for precomputed VF
+    mdl.VFalter = zeros(size(mdl.VF))
     mdl.VFalter = mdl.HAconstraint_Alt(mdl)
     υ = view( mdl.VFalter, :,: )
 
