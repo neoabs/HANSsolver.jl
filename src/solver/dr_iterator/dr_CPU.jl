@@ -82,6 +82,34 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         
     end
 
+    if (isa(mdl.VFalter, Vector))
+
+        @Threads.threads for status in statuses
+        
+            # array_bool = value[:,status] .!= Inf
+            # array_bool .*= value[:,status] .!= -Inf
+            # array_bool .*= .!isnan.(value[:,status])
+            array_bool = value[:,status] .≥ υ[status]
+            value[:,status][.!array_bool] .= υ[status]
+            decission[:,status][.!array_bool] .= 0
+            
+        end
+
+    elseif (isa(mdl.VFalter, Matrix))
+
+        @Threads.threads for status in statuses
+        
+            # array_bool = vf[:,status] .!= Inf
+            # array_bool .*= vf[:,status] .!= -Inf
+            # array_bool .*= .!isnan.(vf[:,status])
+            array_bool = value[:,status] .≥ υ[:,status]
+            value[:,status][.!array_bool] .= υ[:,status]
+            decission[:,status][.!array_bool] .= 0
+
+        end
+
+    end
+
 end
 
 ## Case for Array:
@@ -143,6 +171,34 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
         
     end
 
+    if (isa(mdl.VFalter, Vector))
+
+        @Threads.threads for status in statuses
+        
+            # array_bool = value[:,status] .!= Inf
+            # array_bool .*= value[:,status] .!= -Inf
+            # array_bool .*= .!isnan.(value[:,status])
+            array_bool = value[:,status] .≥ υ[status]
+            value[:,status][.!array_bool] .= υ[status]
+            decission[:,status][.!array_bool] .= 0
+            
+        end
+
+    elseif (isa(mdl.VFalter, Matrix))
+
+        @Threads.threads for status in statuses
+        
+            # array_bool = vf[:,status] .!= Inf
+            # array_bool .*= vf[:,status] .!= -Inf
+            # array_bool .*= .!isnan.(vf[:,status])
+            array_bool = value[:,status] .≥ υ[:,status]
+            value[:,status][.!array_bool] .= υ[:,status]
+            decission[:,status][.!array_bool] .= 0
+
+        end
+        
+    end
+    
 end
 
 """
@@ -219,7 +275,7 @@ function precomputeVF(mdl::Model)
             array_bool = vf[:,status] .!= Inf
             array_bool .*= vf[:,status] .!= -Inf
             array_bool .*= .!isnan.(vf[:,status])
-            array_bool .*= vf[:,status] .< υ[status]
+            array_bool .*= vf[:,status] .> υ[status]
             vf[:,status][.!array_bool] .= υ[status]
             
         end
