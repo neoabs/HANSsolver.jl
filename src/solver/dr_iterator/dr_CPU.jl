@@ -16,10 +16,6 @@ julia> dr_CPU(my_mdl,mymdl.VFalter)
 """
 function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
     
-    #initialize etc
-    value = view(mdl.VF, :, :)
-    decission = view(mdl.DR, :,:)
-    υ = view( mdl.VFalter, : )
     l_dim = Int64( floor( length( mdl.GridDef.Grids ) / 2 ) )
     n_dim = tuple( length.( mdl.GridDef.Grids[1: l_dim ] )... )
     
@@ -29,7 +25,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         
         # initialize value in next period
         # TODO: actually, check if it is correct (seems to be)
-        v_tomorrow = value * mdl.λ[status,:]
+        v_tomorrow = mdl.VF * mdl.λ[status,:]
         
         @Threads.threads for idx = vec(LinearIndices( n_dim )) 
             
@@ -50,10 +46,10 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
             
             #update for discrete choice
             # shouldn't it be done AFTER VFalter is updated? For consideration.
-            v,i_d = υ[status] > v ? (υ[status], 0) : (v, i_d)
+            v,i_d = mdl.VFalter[status] > v ? (mdl.VFalter[status], 0) : (v, i_d)
             
             #update view
-            value[idx, status], decission[idx, status] = ( v, i_d )
+            mdl.VF[idx, status], mdl.DR[idx, status] = ( v, i_d )
             
         end
         
@@ -61,7 +57,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
     #Update VF alter (view) for updated VF → needs to be here because of (1)
     mdl.VFalter = zeros(size(mdl.VF))
-    υ[:] = mdl.HAconstraint_Alt(mdl)
+    mdl.VFalter[:] = mdl.HAconstraint_Alt(mdl)
 
     #initialize parameters for VFalter search
     iter_fin = 0
@@ -72,11 +68,11 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
     # 
     while condition
         
-        test_υ = copy(υ) # (1)
-        υ[:] = mdl.HAconstraint_Alt(mdl)
+        test_υ = copy(mdl.VFalter) # (1)
+        mdl.VFalter[:] = mdl.HAconstraint_Alt(mdl)
 
         #Inrease precission in the future?
-        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        ( (sum(abs.(mdl.VFalter - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
         iter +=1
         condition = iter <= 7
         
@@ -86,12 +82,9 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
         @Threads.threads for status in mdl.GridDef.Grids[end]
         
-            # array_bool = value[:,status] .!= Inf
-            # array_bool .*= value[:,status] .!= -Inf
-            # array_bool .*= .!isnan.(value[:,status])
-            array_bool = value[:,status] .≥ υ[status]
-            value[:,status][.!array_bool] .= υ[status]
-            decission[:,status][.!array_bool] .= 0
+            array_bool = mdl.VF[:,status] .≥ mdl.VFalter[status]
+            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[status]
+            mdl.DR[:,status][.!array_bool] .= 0
             
         end
 
@@ -99,12 +92,9 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
         @Threads.threads for status in mdl.GridDef.Grids[end]
         
-            # array_bool = vf[:,status] .!= Inf
-            # array_bool .*= vf[:,status] .!= -Inf
-            # array_bool .*= .!isnan.(vf[:,status])
-            array_bool = value[:,status] .≥ υ[:,status]
-            value[:,status][.!array_bool] .= υ[:,status]
-            decission[:,status][.!array_bool] .= 0
+            array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
+            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[:,status]
+            mdl.DR[:,status][.!array_bool] .= 0
 
         end
 
@@ -118,10 +108,6 @@ end
 
 function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
     
-    #initialize etc
-    value = view(mdl.VF, :, :)
-    decission = view(mdl.DR, :,:)
-    υ = view( mdl.VFalter, :, :)
     l_dim = Int64( floor( length( mdl.GridDef.Grids ) / 2 ) )
     n_dim = tuple( length.( mdl.GridDef.Grids[1: l_dim ] )... )
     
@@ -129,9 +115,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
     # for each status
     for status = mdl.GridDef.Grids[end]
         
-        # initialize value in next period
-        # TODO: actually, check if it is correct
-        v_tomorrow = value * mdl.λ[status,:]
+        v_tomorrow = mdl.VF * mdl.λ[status,:]
         
         @Threads.threads for idx = vec(LinearIndices( n_dim )) 
             
@@ -144,9 +128,9 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             v,i_d = findmax(v_tmp)
             
             #TODO: MAS - multi alternate state
-            v,i_d = υ[idx,status] > v ? (υ[idx,status], 0) : (v, i_d)
+            v,i_d = mdl.VFalter[idx,status] > v ? (mdl.VFalter[idx,status], 0) : (v, i_d)
             
-            value[idx, status], decission[idx, status] = ( v, i_d )
+            mdl.VF[idx, status], mdl.DR[idx, status] = ( v, i_d )
             
         end
         
@@ -154,7 +138,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
 
     #TODO: MAS - multi alternate state
     mdl.VFalter = zeros(size(mdl.VF))
-    υ[:,:] = mdl.HAconstraint_Alt(mdl)
+    mdl.VFalter[:,:] = mdl.HAconstraint_Alt(mdl)
 
     iter_fin = 0
     iter=0
@@ -163,11 +147,11 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
     #Search for VFalter for new Model.VF
     while condition
         
-        test_υ = copy(υ) # (1)
-        υ[:] = mdl.HAconstraint_Alt(mdl)
+        test_υ = copy(mdl.VFalter) # (1)
+        mdl.VFalter[:] = mdl.HAconstraint_Alt(mdl)
 
         #Inrease precission in the future?
-        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        ( (sum(abs.(mdl.VFalter - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
         iter +=1
         condition = iter <= 7
         
@@ -177,12 +161,9 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
 
         @Threads.threads for status in mdl.GridDef.Grids[end]
         
-            # array_bool = value[:,status] .!= Inf
-            # array_bool .*= value[:,status] .!= -Inf
-            # array_bool .*= .!isnan.(value[:,status])
-            array_bool = value[:,status] .≥ υ[status]
-            value[:,status][.!array_bool] .= υ[status][.!array_bool]
-            decission[:,status][.!array_bool] .= 0
+            array_bool = mdl.VF[:,status] .≥ mdl.VFalter[status]
+            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[status][.!array_bool]
+            mdl.DR[:,status][.!array_bool] .= 0
             
         end
 
@@ -193,9 +174,9 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             # array_bool = vf[:,status] .!= Inf
             # array_bool .*= vf[:,status] .!= -Inf
             # array_bool .*= .!isnan.(vf[:,status])
-            array_bool = value[:,status] .≥ υ[:,status]
-            value[:,status][.!array_bool] .= υ[:,status][.!array_bool]
-            decission[:,status][.!array_bool] .= 0
+            array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
+            mdl.VF[:,status][.!array_bool] .= mdl.VFalter[:,status][.!array_bool]
+            mdl.DR[:,status][.!array_bool] .= 0
 
         end
         
@@ -251,7 +232,7 @@ function precomputeVF(mdl::Model)
     # Compute VFalter for precomputed VF
     mdl.VFalter = zeros(size(mdl.VF))
     mdl.VFalter = mdl.HAconstraint_Alt(mdl)
-    υ = view( mdl.VFalter, :,: )
+    # mdl.VFalter = view( mdl.VFalter, :,: )
 
     iter_fin = 0
     iter=0
@@ -260,11 +241,11 @@ function precomputeVF(mdl::Model)
     #Search for VFalter for new Model.VF
     while condition
         
-        test_υ = copy(υ) # (1)
-        υ[:] = mdl.HAconstraint_Alt(mdl)
+        test_υ = copy(mdl.VFalter) # (1)
+        mdl.VFalter[:] = mdl.HAconstraint_Alt(mdl)
 
         #Inrease precission in the future?
-        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        ( (sum(abs.(mdl.VFalter - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
         iter +=1
         condition = iter <= 7
         
@@ -279,8 +260,8 @@ function precomputeVF(mdl::Model)
             array_bool = vf[:,status] .!= Inf
             array_bool .*= vf[:,status] .!= -Inf
             array_bool .*= .!isnan.(vf[:,status])
-            array_bool .*= vf[:,status] .> υ[status]
-            vf[:,status][.!array_bool] .= υ[status]
+            array_bool .*= vf[:,status] .> mdl.VFalter[status]
+            vf[:,status][.!array_bool] .= mdl.VFalter[status]
             
         end
 
@@ -291,8 +272,8 @@ function precomputeVF(mdl::Model)
             array_bool = vf[:,status] .!= Inf
             array_bool .*= vf[:,status] .!= -Inf
             array_bool .*= .!isnan.(vf[:,status])
-            array_bool .*= vf[:,status] .≥ υ[:,status]
-            vf[:,status][.!array_bool] .= υ[:,status][.!array_bool]
+            array_bool .*= vf[:,status] .≥ mdl.VFalter[:,status]
+            vf[:,status][.!array_bool] .= mdl.VFalter[:,status][.!array_bool]
 
         end
         
