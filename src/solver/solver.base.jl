@@ -5,7 +5,7 @@ function hans_solver(mdl::Union{ModelInit,Model}, lower::Vector{Float64}=[.975,.
     mdl = init_model(mdl)
     if optim_method=="Simplex"
         results = Optim.optimize(prices -> objective_function(prices, mdl, method_cube), mdl.Prices, Optim.NelderMead())
-    else if optim_method =="PSO"# results = optimize( prices -> objective_function(prices, mdl, method_cube), lower, upper, mdl.Prices , Fminbox( NelderMead() ) )
+    elseif optim_method =="PSO"# results = optimize( prices -> objective_function(prices, mdl, method_cube), lower, upper, mdl.Prices , Fminbox( NelderMead() ) )
         results = optimize( prices -> objective_function(prices, mdl, method_cube), mdl.Prices , ParticleSwarm(lower, upper, 64 ) ) 
     else
         error("Select proper optimisation method")
