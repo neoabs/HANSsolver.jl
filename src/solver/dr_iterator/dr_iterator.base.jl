@@ -35,7 +35,7 @@ function iterate_decission_rules(mdl::Model)
 
         # consitent strategy rule
         check1 = old_dr != mdl.DR
-        check2 = sum(abs.(old_vf - mdl.VF)) + sum(abs.(old_vfalter - mdl.VFalter)) < 10^-3
+        check2 = sum(abs.(old_vf - mdl.VF)) + sum(abs.(old_vfalter - mdl.VFalter)) > 10^-3
         #might concentrate with above in the future. Right now it is divided in case more condition would arrive. 
         no_convergeance = (check1&check2)
         
