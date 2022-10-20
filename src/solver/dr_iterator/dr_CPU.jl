@@ -63,7 +63,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
     υ[:] = mdl.HAconstraint_Alt(mdl)
 
     #initialize parameters for VFalter search
-    iter = 0
+    iter_fin = 0
+    iter=0
     condition = true
 
     #Search for VFalter for new Model.VF
@@ -73,7 +74,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         υ[:] = mdl.HAconstraint_Alt(mdl)
 
         #Inrease precission in the future?
-        sum(abs.(υ - test_υ)) < 10^(-6) && (iter += 1)
+        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        iter +=1
         condition = iter <= 7
         
     end
@@ -121,16 +123,19 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
     #TODO: MAS - multi alternate state
     υ[:,:] = mdl.HAconstraint_Alt(mdl)
 
-    iter = 0
+    iter_fin = 0
+    iter=0
     condition = true
 
+    #Search for VFalter for new Model.VF
     while condition
         
-        test_υ = copy(υ)
-        #TODO: MAS - multi alternate state
-        υ[:,:] = mdl.HAconstraint_Alt(mdl)
+        test_υ = copy(υ) # (1)
+        υ[:] = mdl.HAconstraint_Alt(mdl)
 
-        sum(abs.(υ - test_υ)) < 10^(-6) && (iter += 1)
+        #Inrease precission in the future?
+        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        iter +=1
         condition = iter <= 7
         
     end
@@ -184,15 +189,20 @@ function precomputeVF(mdl::Model)
     mdl.VFalter = mdl.HAconstraint_Alt(mdl)
     υ = view( mdl.VFalter, :,: )
 
-    iter = 0
-    # condition = true
-    while iter <= 7
-        
-        test_υ = copy(υ)
-        υ[:,:] = mdl.HAconstraint_Alt(mdl)
+    iter_fin = 0
+    iter=0
+    condition = true
 
-        sum(abs.(υ - test_υ)) < 10^(-6) && (iter += 1)
-        # condition = iter <= 7
+    #Search for VFalter for new Model.VF
+    while condition
+        
+        test_υ = copy(υ) # (1)
+        υ[:] = mdl.HAconstraint_Alt(mdl)
+
+        #Inrease precission in the future?
+        ( (sum(abs.(υ - test_υ)) < 10^(-6)) | (iter ≥ vf_iterator_maxiter)) && (iter_fin += 1)
+        iter +=1
+        condition = iter <= 7
         
     end
 
