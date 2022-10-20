@@ -84,7 +84,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[status]
             mdl.VF[:,status][.!array_bool] .= mdl.VFalter[status]
-            mdl.DR[:,status][.!array_bool] .= 0
+            mdl.DR[.!array_bool,status] .= 0
             
         end
 
@@ -94,7 +94,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
         
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
             mdl.VF[:,status][.!array_bool] = mdl.VFalter[:,status][.!array_bool]
-            mdl.DR[:,status][.!array_bool] = zeros(Int,size(mdl.DR[:,status][.!array_bool]))
+            mdl.DR[.!array_bool,status] = zeros(Int,size(mdl.DR[.!array_bool,status]))
 
         end
 
@@ -163,7 +163,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
         
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[status]
             mdl.VF[:,status][.!array_bool] .= mdl.VFalter[status][.!array_bool]
-            mdl.DR[:,status][.!array_bool] .= 0
+            mdl.DR[.!array_bool,status] .= 0
             
         end
 
@@ -176,7 +176,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
             # array_bool .*= .!isnan.(vf[:,status])
             array_bool = mdl.VF[:,status] .≥ mdl.VFalter[:,status]
             mdl.VF[:,status][.!array_bool] = mdl.VFalter[:,status][.!array_bool]
-            mdl.DR[:,status][.!array_bool] = zeros(Int,size(mdl.DR[:,status][.!array_bool]))
+            mdl.DR[.!array_bool,status] = zeros(Int,size(mdl.DR[.!array_bool,status]))
 
         end
         
