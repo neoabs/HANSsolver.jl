@@ -84,7 +84,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
     if (isa(mdl.VFalter, Vector))
 
-        @Threads.threads for status in statuses
+        @Threads.threads for status in mdl.GridDef.Grids[end]
         
             # array_bool = value[:,status] .!= Inf
             # array_bool .*= value[:,status] .!= -Inf
@@ -97,7 +97,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
     elseif (isa(mdl.VFalter, Matrix))
 
-        @Threads.threads for status in statuses
+        @Threads.threads for status in mdl.GridDef.Grids[end]
         
             # array_bool = vf[:,status] .!= Inf
             # array_bool .*= vf[:,status] .!= -Inf
@@ -173,7 +173,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
 
     if (isa(mdl.VFalter, Vector))
 
-        @Threads.threads for status in statuses
+        @Threads.threads for status in mdl.GridDef.Grids[end]
         
             # array_bool = value[:,status] .!= Inf
             # array_bool .*= value[:,status] .!= -Inf
@@ -186,7 +186,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
 
     elseif (isa(mdl.VFalter, Matrix))
 
-        @Threads.threads for status in statuses
+        @Threads.threads for status in mdl.GridDef.Grids[end]
         
             # array_bool = vf[:,status] .!= Inf
             # array_bool .*= vf[:,status] .!= -Inf
@@ -198,7 +198,7 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
         end
         
     end
-    
+
 end
 
 """
