@@ -110,6 +110,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Vector{<:Real}=mdl.VFalter)
 
     end
 
+    return(mdl)
+    
 end
 
 ## Case for Array:
@@ -199,6 +201,8 @@ function dr_CPU(mdl::Model,vectorORmatrix::Matrix{<:Real}=mdl.VFalter)
         
     end
 
+    return(mdl)
+    
 end
 
 """
