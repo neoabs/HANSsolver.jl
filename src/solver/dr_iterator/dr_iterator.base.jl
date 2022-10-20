@@ -28,7 +28,7 @@ function iterate_decission_rules(mdl::Model)
         old_vf, old_dr, old_vfalter = copy(mdl.VF), copy(mdl.DR), copy(mdl.VFalter)
         
         #find optimal decission rules/ vf matrix given old DR / old VF
-        mdl = dr_CPU(mdl)
+        mdl = copy(dr_CPU(mdl))
         
         #optional afterprocessing
         mdl.VF_afterprocess(mdl)
